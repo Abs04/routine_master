@@ -59,7 +59,7 @@ async def create_routine(routine: Routine, db: Session = Depends(get_db)):
     if existing_routine:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This course has another class at the ---- specified time."
+            detail="This course has another class at the specified time."
         )
     roomAllocation.bookedRooms += 1
 
