@@ -38,7 +38,7 @@ async def create_teacher(req: Request, db: Session = Depends(get_db)):
     else:
         # Check if code already exists
         existing_teacher = db.exec(select(Teacher).where(
-            Teacher.shortCode == shortCode)).first()
+            Teacher.shortCode == shortCode and Teacher.email == email)).first()
         if existing_teacher:
             raise HTTPException(
                 status_code=400, detail="Teacher with this code already exists.")

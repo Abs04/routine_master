@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-
+from datetime import date, datetime
 from src.models.semester import Semester
 from src.lib.db import get_db
 
@@ -21,6 +21,16 @@ async def get_semester(id: int, db: Session = Depends(get_db)):
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_semesters(semester: Semester, db: Session = Depends(get_db)):
+    
+    # converting string to date object
+    startDateObject = datetime.strptime(semester.startDate, '%m/%d/%Y').date() 
+    endDateObject = datetime.strptime(semester.endDate, '%m/%d/%Y').date()
+    # Validate that start date is before or equal to end date
+    if semester.name == Semester.name or startDateObject >  endDateObject:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before or equal to end date."
+        )
     # Check if any other semester is within the same time frame
     existing_semester = db.exec(
         select(Semester).where(
@@ -42,6 +52,18 @@ async def create_semesters(semester: Semester, db: Session = Depends(get_db)):
 
 @router.patch("/{id}", status_code=status.HTTP_200_OK)
 async def edit_semester(id: int, semester: Semester, db: Session = Depends(get_db)):
+    
+    # converting string to date object
+    startDateObject = datetime.strptime(semester.startDate, '%mm/%d/%Y').date() 
+    endDateObject = datetime.strptime(semester.endDate, '%m/%d/%Y').date()
+    
+    # Validate that start date is before or equal to end date
+    if semester.name == Semester.name or startDateObject >  endDateObject:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before or equal to end date."
+        )
+    
     # Check if any other semester is within the same time frame
     existing_semester = db.exec(
         select(Semester).where(
